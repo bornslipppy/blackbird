@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Blackbird — Early access</title>
+<style>
+  @font-face {
+    font-family: "Helvetica Neue LT Std";
+    src: url("assets/fonts/HelveticaNeueLTStd-Roman.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Helvetica Neue LT Std";
+    src: url("assets/fonts/HelveticaNeueLTStd-Lt.otf") format("opentype");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Helvetica Neue LT Std";
+    src: url("assets/fonts/HelveticaNeueLTStd-Md.otf") format("opentype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Helvetica Neue LT Std";
+    src: url("assets/fonts/HelveticaNeueLTStd-Bd.otf") format("opentype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Helvetica Neue LT Std";
+    src: url("assets/fonts/HelveticaNeueLTStd-It.otf") format("opentype");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+  }
+
+  :root {
+    /* Cursor spotlight position for masked white grid (px) */
+    --spot-x: 50vw;
+    --spot-y: 50vh;
+    /* Reserve space under fixed footer + approximate header block for hero height math */
+    --footer-bar: max(4.85rem, calc(env(safe-area-inset-bottom, 0px) + 3.75rem));
+    --header-stack: clamp(4.25rem, 10vh, 6rem);
+    --bg: #0a0a0a;
+    --ink: #f6f3ec;
+    --ink-soft: rgba(246, 243, 236, 0.62);
+    --ink-faint: rgba(246, 243, 236, 0.28);
+    --rule: rgba(246, 243, 236, 0.14);
+    --field: rgba(246, 243, 236, 0.06);
+    --field-hi: rgba(246, 243, 236, 0.10);
+    --danger: #e8a87c;
+    --font: "Helvetica Neue LT Std", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html, body { height: auto; min-height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /* Scrollable page shell — sits above fixed backdrop + footer */
+  .shell {
+    position: relative;
+    z-index: 3;
+    padding-bottom: var(--footer-bar);
+  }
+
+  /* Full-viewport centered pitch (second “screen” when scrolling) */
+  .scroll-pitch {
+    position: relative;
+    z-index: 3;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(28px, 5vh, 64px) clamp(20px, 4vw, 56px);
+    padding-bottom: max(clamp(36px, 6vh, 72px), var(--footer-bar));
+    box-sizing: border-box;
+  }
+  .scroll-pitch-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .scroll-pitch .pitch-mark {
+    width: clamp(32px, 7vw, 44px);
+    height: auto;
+    display: block;
+    color: var(--ink);
+    margin-bottom: clamp(22px, 3.2vh, 36px);
+    flex-shrink: 0;
+  }
+  .scroll-pitch .sub.sub-pitch {
+    margin: 0;
+    max-width: min(52ch, 90vw);
+    width: 100%;
+  }
+  .scroll-pitch .sub.sub-pitch .sub-line + .sub-line {
+    margin-top: 2.4em;
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     Fixed viewport backdrop (grid + spotlight)
+     ────────────────────────────────────────────────────────────── */
+  .bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background-color: #121212;
+    background-image:
+      linear-gradient(to right, rgba(186, 230, 253, 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(186, 230, 253, 0.045) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  /* Edge vignettes — multi-stop fades for smoother falloff toward center */
+  .bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(
+        to bottom,
+        #121212 0%,
+        rgba(18, 18, 18, 0.9) 4%,
+        rgba(18, 18, 18, 0.55) 12%,
+        rgba(18, 18, 18, 0.22) 24%,
+        rgba(18, 18, 18, 0.06) 33%,
+        rgba(18, 18, 18, 0) 42%
+      ),
+      linear-gradient(
+        to top,
+        #121212 0%,
+        rgba(18, 18, 18, 0.9) 4%,
+        rgba(18, 18, 18, 0.55) 12%,
+        rgba(18, 18, 18, 0.22) 24%,
+        rgba(18, 18, 18, 0.06) 33%,
+        rgba(18, 18, 18, 0) 42%
+      ),
+      linear-gradient(
+        to right,
+        #121212 0%,
+        rgba(18, 18, 18, 0.88) 5%,
+        rgba(18, 18, 18, 0.48) 14%,
+        rgba(18, 18, 18, 0.18) 26%,
+        rgba(18, 18, 18, 0.04) 35%,
+        rgba(18, 18, 18, 0) 44%
+      ),
+      linear-gradient(
+        to left,
+        #121212 0%,
+        rgba(18, 18, 18, 0.88) 5%,
+        rgba(18, 18, 18, 0.48) 14%,
+        rgba(18, 18, 18, 0.18) 26%,
+        rgba(18, 18, 18, 0.04) 35%,
+        rgba(18, 18, 18, 0) 44%
+      );
+  }
+
+  /* Same grid as .bg, but line color is white — only inside the masked spotlight */
+  .spotlight-glow {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-color: transparent;
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.044) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.044) 1px, transparent 1px);
+    background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(
+      circle max(300px, 42vmin) at var(--spot-x, 50vw) var(--spot-y, 50vh),
+      #fff 0%,
+      rgba(255, 255, 255, 0.5) 58%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      circle max(300px, 42vmin) at var(--spot-x, 50vw) var(--spot-y, 50vh),
+      #fff 0%,
+      rgba(255, 255, 255, 0.5) 58%,
+      transparent 100%
+    );
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     Header — logo only
+     ────────────────────────────────────────────────────────────── */
+  header.top {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(20px, 3vw, 36px) clamp(20px, 4vw, 56px);
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .brand .mark {
+    width: 28px; height: auto; display: block;
+    color: var(--ink);
+    transform-origin: 50% 50%;
+    animation: logoDrift 5.5s ease-in-out infinite;
+  }
+  @keyframes logoDrift {
+    0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+    40%      { transform: translateY(-1.5px) scale(1.04) rotate(-0.4deg); }
+    60%      { transform: translateY(0.5px) scale(1.025) rotate(0.35deg); }
+  }
+  .brand:hover .mark {
+    animation-duration: 2.8s;
+  }
+  .brand .wordmark {
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: clamp(15px, 1.25vw, 18px);
+    letter-spacing: 0.005em;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .top .meta {
+    font-family: var(--font);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--ink-soft);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .top .meta .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.55);
+    animation: pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.55); }
+    70%  { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     Main content
+     ────────────────────────────────────────────────────────────── */
+  main.hero {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 clamp(20px, 4vw, 56px);
+    padding-bottom: clamp(36px, 6vh, 72px);
+    /* First view: hero fills space between header + fixed footer */
+    min-height: calc(100dvh - var(--header-stack) - var(--footer-bar));
+    min-height: calc(100svh - var(--header-stack) - var(--footer-bar));
+    box-sizing: border-box;
+  }
+
+  .eyebrow {
+    font-family: var(--font);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 clamp(14px, 2.4vh, 32px);
+    white-space: nowrap;
+  }
+  .eyebrow::before,
+  .eyebrow::after {
+    content: "";
+    width: 28px; height: 1px;
+    background: var(--ink-faint);
+    display: inline-block;
+  }
+
+  h1.headline {
+    font-family: var(--font);
+    font-weight: 400;
+    /* Tied to min(vw, vh) so it scales DOWN on short laptops, not just narrow phones */
+    font-size: clamp(40px, min(7.5vw, 14vh), 128px);
+    line-height: 0.92;
+    letter-spacing: -0.015em;
+    text-align: center;
+    margin: 0;
+    max-width: 36ch;
+    text-wrap: balance;
+  }
+  /* The word container: three explicit rows (.line), each a flex row.
+     position:relative makes this the anchor for floating words. */
+  .headline .ph {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.03em;
+    position: relative;
+  }
+  .headline .ph .line {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    column-gap: 0.16em;
+    row-gap: 0.03em;
+    width: 100%;
+  }
+  .ph {
+    color: var(--ink);
+    opacity: 0.95;
+  }
+
+  /* ── Draggable words — neutral white outlines (no tinted glow) ── */
+
+  .headline .ph .word {
+    display: inline-block;
+    padding: 0.02em 0.05em;
+    border: 1px dashed transparent;
+    border-radius: 4px;
+    background-color: transparent;
+    box-shadow: none;
+    color: var(--ink);
+    cursor: grab;
+    touch-action: none; /* let JS handle the gesture on touch */
+    user-select: none;
+    -webkit-user-select: none;
+    transition:
+      color 160ms ease,
+      border-color 160ms ease,
+      background-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 220ms cubic-bezier(.2,.7,.2,1);
+    will-change: transform;
+  }
+  .headline .ph .word:hover {
+    color: #b8b6b0;
+    border-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.07);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.14) inset,
+      0 8px 28px rgba(0, 0, 0, 0.28);
+  }
+  .headline .ph .word.is-floating {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: auto;
+  }
+  .headline .ph .word.is-dragging {
+    cursor: grabbing;
+    color: #b8b6b0;
+    border-color: rgba(255, 255, 255, 0.68);
+    background-color: rgba(255, 255, 255, 0.11);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.18) inset,
+      0 14px 40px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    transition: none; /* drag follows pointer instantly */
+  }
+  .ph-mono {
+    font-family: var(--font);
+    font-weight: 500;
+    font-size: 0.6em;
+    letter-spacing: 0.02em;
+    vertical-align: 0.18em;
+    color: var(--ink-soft);
+    padding: 0.1em 0.4em;
+    border: 1px dashed var(--ink-faint);
+    border-radius: 4px;
+    margin: 0 0.1em;
+    font-style: normal;
+  }
+
+  p.sub {
+    font-family: var(--font);
+    font-weight: 300;
+    font-size: clamp(14px, 1.4vw, 18px);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    text-align: center;
+    max-width: 46ch;
+    margin: clamp(14px, 2.2vh, 26px) 0 clamp(20px, 3.4vh, 38px);
+    text-wrap: pretty;
+  }
+  p.sub .sub-line {
+    display: block;
+  }
+
+  /* ── Email form ── */
+  form.signup {
+    width: min(520px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: clamp(44px, 6vh, 72px);
+  }
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 6px 6px 6px 22px;
+    border-radius: 999px;
+    background: var(--field);
+    border: 1px solid var(--rule);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    transition: border-color 200ms ease, background 200ms ease;
+  }
+  .field:focus-within {
+    border-color: rgba(246, 243, 236, 0.5);
+    background: var(--field-hi);
+  }
+  .field input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 16px; /* >=16 to dodge iOS zoom */
+    font-weight: 400;
+    padding: 14px 4px;
+    letter-spacing: 0.005em;
+  }
+  .field input::placeholder {
+    color: var(--ink-faint);
+    font-family: var(--font);
+    font-weight: 300;
+    font-size: 13px;
+    letter-spacing: 0.01em;
+  }
+  .field button {
+    appearance: none;
+    cursor: pointer;
+    font-family: var(--font);
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    padding: 14px 22px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    color: #ffffff;
+    background: linear-gradient(180deg, #1e1e1e 0%, #141414 45%, #0e0e0e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.12) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.55) inset,
+      0 4px 6px rgba(0, 0, 0, 0.4),
+      0 2px 0 rgba(0, 0, 0, 0.25),
+      0 8px 16px rgba(0, 0, 0, 0.35);
+    transition:
+      transform 200ms ease,
+      background 200ms ease,
+      color 200ms ease,
+      box-shadow 200ms ease,
+      border-color 200ms ease;
+  }
+  .field button:hover {
+    color: #ffffff;
+    background: linear-gradient(180deg, #262626 0%, #1a1a1a 45%, #121212 100%);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.16) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.45) inset,
+      0 5px 0 rgba(0, 0, 0, 0.22),
+      0 6px 10px rgba(0, 0, 0, 0.45),
+      0 14px 24px rgba(0, 0, 0, 0.4);
+  }
+  .field button:active {
+    transform: translateY(1px);
+    background: linear-gradient(180deg, #141414 0%, #101010 45%, #0a0a0a 100%);
+    box-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.65) inset,
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 2px 4px rgba(0, 0, 0, 0.35);
+  }
+  .field button:disabled {
+    opacity: 0.7;
+    cursor: progress;
+    transform: none;
+    border-color: rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, #181818 0%, #121212 100%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  form.signup .field button#submit span.label {
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+  }
+  form.signup .field button#submit:hover span.label,
+  form.signup .field button#submit:active span.label,
+  form.signup .field button#submit:disabled span.label {
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+  }
+  .field button .arrow { transition: transform 250ms ease; }
+  .field button:hover .arrow { transform: translateX(3px); }
+
+  .status {
+    font-family: var(--font);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--ink-soft);
+    height: 1em;
+    min-height: 1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 200ms ease;
+  }
+  .status.error { color: var(--danger); }
+  .status.success { color: var(--ink); }
+
+  /* Success state — swap the form for a serene confirmation */
+  .success-card {
+    width: min(520px, 100%);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 22px 24px;
+    border-radius: 18px;
+    background: var(--field);
+    border: 1px solid var(--rule);
+    backdrop-filter: blur(14px) saturate(1.1);
+    text-align: center;
+  }
+  .success-card .checkmark {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--ink);
+    display: grid; place-items: center;
+    margin-bottom: 6px;
+  }
+  .success-card .checkmark svg { width: 16px; height: 16px; }
+  .success-card .t1 {
+    font-family: var(--font);
+    font-size: 26px;
+    line-height: 1.1;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .success-card .t2 {
+    font-family: var(--font);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    font-weight: 300;
+    color: var(--ink-soft);
+  }
+  body.is-success form.signup { display: none; }
+  body.is-success .success-card { display: flex; }
+
+  /* ──────────────────────────────────────────────────────────────
+     Footer — thin meta row
+     ────────────────────────────────────────────────────────────── */
+  footer.bot {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: clamp(16px, 2.4vw, 26px) clamp(20px, 4vw, 56px);
+    padding-bottom: max(clamp(16px, 2.4vw, 26px), env(safe-area-inset-bottom, 0px));
+    font-family: var(--font);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    font-weight: 300;
+    color: var(--ink-faint);
+    gap: 16px;
+  }
+  footer.bot .row {
+    display: inline-flex; gap: 22px; align-items: center;
+  }
+  footer.bot a {
+    color: var(--ink-faint);
+    text-decoration: none;
+    transition: color 200ms ease;
+  }
+  footer.bot a:hover { color: var(--ink-soft); }
+
+  /* ──────────────────────────────────────────────────────────────
+     Responsive — tighten on small screens / short viewports.
+     ────────────────────────────────────────────────────────────── */
+  @media (max-height: 820px) {
+    .eyebrow { margin-bottom: 14px; gap: 10px; }
+    .eyebrow::before, .eyebrow::after { width: 20px; }
+    p.sub { margin: 12px 0 20px; }
+    .field input { padding: 12px 4px; }
+    .field button { padding: 12px 18px; }
+  }
+  @media (max-height: 640px) {
+    .eyebrow { display: none; }
+    p.sub { margin: 10px 0 16px; font-size: 13px; }
+    .status { font-size: 10px; }
+    h1.headline { max-width: 40ch; }
+  }
+  @media (max-width: 640px) {
+    footer.bot .row.center { display: none; }
+    h1.headline { font-size: clamp(40px, 11vw, 64px); }
+    .field { padding-left: 16px; }
+    .field button { padding: 12px 16px; font-size: 13px; }
+    .field button .arrow { display: none; }
+    .field input { padding: 12px 4px; }
+  }
+  @media (max-width: 380px) {
+    header.top { padding: 16px 18px; }
+    footer.bot { padding: 14px 18px; }
+    footer.bot .right { display: none; }
+  }
+
+  /* Reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .top .meta .dot { animation: none; box-shadow: none; }
+    .brand .mark { animation: none; }
+    .field button { transition: none; }
+    .field button:hover { transform: none; }
+    .field button:active { transform: none; }
+    .spotlight-glow { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Fixed viewport backdrop (scrolls with page visually static) -->
+<div class="bg" aria-hidden="true"></div>
+<div class="spotlight-glow" aria-hidden="true"></div>
+
+<div class="shell">
+  <!-- ============ HEADER ============ -->
+  <header class="top">
+    <a class="brand" href="#" aria-label="Blackbird">
+      <svg class="mark" viewBox="0 0 89 50" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M77.82 10.927L88.747 0H49.113L0 49.113H77.82C88.365 38.568 88.365 21.472 77.82 10.927ZM60.276 9.374C58.931 9.374 57.841 8.284 57.841 6.939C57.841 5.594 58.931 4.504 60.276 4.504C61.621 4.504 62.711 5.594 62.711 6.939C62.71 8.283 61.62 9.374 60.276 9.374Z" fill="currentColor"></path>
+      </svg>
+      <span class="wordmark">Blackbird</span>
+    </a>
+
+    <div class="meta" aria-hidden="true">
+      <span class="dot"></span>
+      <span>Early access</span>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <main class="hero">
+    <div class="eyebrow">Coming Soon</div>
+
+    <h1 class="headline">
+      <span class="ph">
+        <span class="line">
+          <span class="word">Treat</span>
+          <span class="word">AI</span>
+        </span>
+        <span class="line">
+          <span class="word">prototypes</span>
+          <span class="word">like</span>
+          <span class="word">Figma</span>
+        </span>
+        <span class="line">
+          <span class="word">frames</span>
+          <span class="word">on</span>
+          <span class="word">canvas.</span>
+        </span>
+      </span>
+    </h1>
+
+    <p class="sub">
+      <span class="sub-line">Drop in any prototype to get a bird's-eye view of multiple interactive artifacts on a Figma-like canvas, and collaborate directly on the live UI</span>
+    </p>
+
+    <form class="signup" novalidate>
+      <label class="field" for="email">
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          inputmode="email"
+          placeholder="Your work email — e.g. you@domain.com"
+          aria-label="Email address"
+          required
+        />
+        <button type="submit" id="submit">
+          <span class="label">Early Access</span>
+          <svg class="arrow" width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true">
+            <path d="M1 5h12M9 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </label>
+
+      <div class="status" id="status" aria-live="polite">We'll only email about early access</div>
+    </form>
+
+    <div class="success-card" role="status" aria-live="polite">
+      <div class="checkmark">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="t1">[Confirmation headline]</div>
+      <div class="t2">[Confirmation subline — you're on the list]</div>
+    </div>
+  </main>
+
+  <section class="scroll-pitch" aria-label="Why Blackbird">
+    <div class="scroll-pitch-inner">
+      <svg class="pitch-mark" viewBox="0 0 89 50" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M77.82 10.927L88.747 0H49.113L0 49.113H77.82C88.365 38.568 88.365 21.472 77.82 10.927ZM60.276 9.374C58.931 9.374 57.841 8.284 57.841 6.939C57.841 5.594 58.931 4.504 60.276 4.504C61.621 4.504 62.711 5.594 62.711 6.939C62.71 8.283 61.62 9.374 60.276 9.374Z" fill="currentColor"></path>
+      </svg>
+      <p class="sub sub-pitch">
+        <span class="sub-line">Browser tabs force you to review live design outputs in isolation, killing your ability to explore multiple design directions, compare versions, or add related artifacts.</span>
+        <span class="sub-line">Blackbird puts all your interactive builds onto one infinite canvas. See the big picture, interact with the real UI, and leave spatial comments—just like you do in Figma.</span>
+      </p>
+    </div>
+  </section>
+</div>
+
+<!-- ============ FOOTER (fixed to viewport bottom) ============ -->
+<footer class="bot">
+  <div class="row left">© Blackbird — 2026</div>
+  <div class="row center">
+    <a href="https://www.linkedin.com/in/yairc/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    <a href="mailto:downstairsgroup@gmail.com">Email</a>
+  </div>
+  <div class="row right">Made with ♥️ in Tel-Aviv</div>
+</footer>
+
+<script>
+  // ──────────────────────────────────────────────
+  // White grid lines in the cursor spotlight (no wash layer)
+  // ──────────────────────────────────────────────
+  (function initGridSpotlight() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const root = document.documentElement;
+    function setSpot(clientX, clientY) {
+      root.style.setProperty('--spot-x', clientX + 'px');
+      root.style.setProperty('--spot-y', clientY + 'px');
+    }
+    document.addEventListener(
+      'pointermove',
+      (e) => setSpot(e.clientX, e.clientY),
+      { passive: true }
+    );
+    setSpot(window.innerWidth / 2, window.innerHeight / 2);
+  })();
+
+  // ──────────────────────────────────────────────
+  // Real form behavior — validation, fake submit,
+  // error + success states. Replace the fetch with
+  // your provider (Loops, ConvertKit, Resend, etc.)
+  // ──────────────────────────────────────────────
+  const form  = document.querySelector('form.signup');
+  const input = document.getElementById('email');
+  const btn   = document.getElementById('submit');
+  const stat  = document.getElementById('status');
+
+  const RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function setStatus(msg, kind) {
+    stat.textContent = msg;
+    stat.classList.remove('error', 'success');
+    if (kind) stat.classList.add(kind);
+  }
+
+  input.addEventListener('input', () => {
+    if (stat.classList.contains('error')) {
+      setStatus("We'll only email about early access", null);
+    }
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const val = input.value.trim();
+
+    if (!val) {
+      setStatus('[Error — please enter your email]', 'error');
+      input.focus();
+      return;
+    }
+    if (!RE.test(val)) {
+      setStatus('[Error — that doesn\u2019t look like a valid email]', 'error');
+      input.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    const labelEl = btn.querySelector('.label');
+    const labelWas = labelEl.textContent;
+    labelEl.textContent = '[Sending…]';
+    setStatus('[Sending — securing your spot]', null);
+
+    // Simulate a network roundtrip — swap for your real endpoint
+    await new Promise(r => setTimeout(r, 900));
+
+    btn.disabled = false;
+    labelEl.textContent = labelWas;
+
+    document.body.classList.add('is-success');
+  });
+
+  // ──────────────────────────────────────────────
+  // Draggable headline words with collision.
+  // 1) On load, snapshot every word's inline
+  //    rendered position and convert them all to
+  //    absolute (so the headline keeps its layout
+  //    but words now have stable, testable rects).
+  // 2) On drag, follow the pointer and resolve
+  //    collisions by pushing the OTHER word out
+  //    along the shortest axis. Cascades up to a
+  //    cap so a chain of words can shuffle.
+  // ──────────────────────────────────────────────
+  (function initDraggableWords() {
+    const headline = document.querySelector('h1.headline');
+    if (!headline) return;
+    const container = headline.querySelector('.ph');
+    if (!container) return;
+    const wordEls = Array.from(container.querySelectorAll('.word'));
+    if (!wordEls.length) return;
+
+    // Each word's position is stored as (x, y) in the container's
+    // coord space. Width/height are frozen at first measurement.
+    const state = new Map();
+
+    function unliftAllWords() {
+      // Reverse the lift so we can re-measure with the natural flex layout.
+      wordEls.forEach(el => {
+        el.classList.remove('is-floating');
+        el.style.transform = '';
+        el.style.width = '';
+        el.style.height = '';
+      });
+      container.style.height = '';
+      container.style.width = '';
+    }
+
+    function liftAllWords() {
+      // Measure each word's natural offset within the container.
+      // offsetLeft/Top give us the value directly — no rect math,
+      // no coordinate-space confusion.
+      const measurements = wordEls.map(el => ({
+        el,
+        x: el.offsetLeft,
+        y: el.offsetTop,
+        w: el.offsetWidth,
+        h: el.offsetHeight,
+      }));
+
+      // Lock the container's box so it doesn't collapse when its
+      // flex children all go absolute.
+      container.style.width = container.offsetWidth + 'px';
+      container.style.height = container.offsetHeight + 'px';
+
+      // Apply absolute positioning.
+      measurements.forEach(m => {
+        m.el.style.width = m.w + 'px';
+        m.el.style.height = m.h + 'px';
+        m.el.style.transform = `translate(${m.x}px, ${m.y}px)`;
+        m.el.classList.add('is-floating');
+        state.set(m.el, { x: m.x, y: m.y, w: m.w, h: m.h });
+      });
+    }
+
+    function relayout() {
+      unliftAllWords();
+      // Force a reflow so the next measurement reads the
+      // freshly-inlined layout, not the cached floating one.
+      container.offsetHeight;
+      liftAllWords();
+    }
+
+    function setPos(el, x, y) {
+      const s = state.get(el);
+      s.x = x;
+      s.y = y;
+      el.style.transform = `translate(${x}px, ${y}px)`;
+    }
+
+    // Axis-aligned bounding box overlap test.
+    function overlap(a, b) {
+      return !(a.x + a.w <= b.x || b.x + b.w <= a.x ||
+               a.y + a.h <= b.y || b.y + b.h <= a.y);
+    }
+
+    // Push `other` out of `mover` along the shortest axis.
+    // Returns true if `other` was moved.
+    function resolvePair(mover, other) {
+      const m = state.get(mover);
+      const o = state.get(other);
+      if (!overlap(m, o)) return false;
+
+      // Penetration depths on each side.
+      const pushRight = (m.x + m.w) - o.x;        // move other right
+      const pushLeft  = (o.x + o.w) - m.x;        // move other left
+      const pushDown  = (m.y + m.h) - o.y;        // move other down
+      const pushUp    = (o.y + o.h) - m.y;        // move other up
+
+      const minH = Math.min(pushRight, pushLeft);
+      const minV = Math.min(pushDown, pushUp);
+
+      let nx = o.x, ny = o.y;
+      if (minH < minV) {
+        nx = pushRight < pushLeft ? o.x + pushRight : o.x - pushLeft;
+      } else {
+        ny = pushDown < pushUp ? o.y + pushDown : o.y - pushUp;
+      }
+      setPos(other, nx, ny);
+      return true;
+    }
+
+    // Resolve all collisions caused by `dragged`. Cascades:
+    // if pushing B makes B hit C, C gets pushed too.
+    function resolveCollisions(dragged) {
+      const MAX_PASSES = 8;
+      // The "fixed" set: words we won't move during this
+      // resolution pass. Starts with the dragged word.
+      const fixed = new Set([dragged]);
+      for (let pass = 0; pass < MAX_PASSES; pass++) {
+        let movedAny = false;
+        for (const mover of fixed) {
+          for (const other of wordEls) {
+            if (fixed.has(other)) continue;
+            if (resolvePair(mover, other)) {
+              fixed.add(other);
+              movedAny = true;
+            }
+          }
+        }
+        if (!movedAny) break;
+      }
+    }
+
+    function bindDrag(word) {
+      let dragging = false;
+      let pointerId = null;
+      let startX = 0, startY = 0;
+      let baseX = 0, baseY = 0;
+
+      word.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        e.preventDefault();
+        const s = state.get(word);
+        baseX = s.x;
+        baseY = s.y;
+        dragging = true;
+        pointerId = e.pointerId;
+        startX = e.clientX;
+        startY = e.clientY;
+        word.classList.add('is-dragging');
+        word.setPointerCapture(pointerId);
+      });
+
+      word.addEventListener('pointermove', (e) => {
+        if (!dragging || e.pointerId !== pointerId) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        setPos(word, baseX + dx, baseY + dy);
+        resolveCollisions(word);
+      });
+
+      function endDrag(e) {
+        if (!dragging || e.pointerId !== pointerId) return;
+        dragging = false;
+        word.classList.remove('is-dragging');
+        try { word.releasePointerCapture(pointerId); } catch (_) {}
+        pointerId = null;
+      }
+      word.addEventListener('pointerup', endDrag);
+      word.addEventListener('pointercancel', endDrag);
+    }
+
+    // Lift immediately so the page never shows a flash of
+    // inline-then-floating words. Then re-measure once fonts
+    // resolve (the real face may be wider than the fallback,
+    // changing where each word sits) and on resize.
+    liftAllWords();
+    wordEls.forEach(bindDrag);
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(relayout);
+    }
+
+    // Debounced resize. We blow away any user drag positions
+    // on resize because the original layout coordinates no
+    // longer apply — better to reset than leave words stranded.
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(relayout, 120);
+    });
+  })();
+</script>
+
+</body>
+</html>
