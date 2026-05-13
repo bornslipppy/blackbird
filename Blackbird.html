@@ -49,12 +49,12 @@
     --footer-bar: max(4.85rem, calc(env(safe-area-inset-bottom, 0px) + 3.75rem));
     --header-stack: clamp(4.25rem, 10vh, 6rem);
     --bg: #0a0a0a;
-    --ink: #f6f3ec;
-    --ink-soft: rgba(246, 243, 236, 0.62);
-    --ink-faint: rgba(246, 243, 236, 0.28);
-    --rule: rgba(246, 243, 236, 0.14);
-    --field: rgba(246, 243, 236, 0.06);
-    --field-hi: rgba(246, 243, 236, 0.10);
+    --ink: #FFF8E8;
+    --ink-soft: rgba(255, 248, 232, 0.62);
+    --ink-faint: rgba(255, 248, 232, 0.28);
+    --rule: rgba(255, 248, 232, 0.14);
+    --field: rgba(255, 248, 232, 0.06);
+    --field-hi: rgba(255, 248, 232, 0.10);
     --danger: #e8a87c;
     --font: "Helvetica Neue LT Std", "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
@@ -182,19 +182,19 @@
     pointer-events: none;
     background-color: transparent;
     background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.044) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.044) 1px, transparent 1px);
+      linear-gradient(to right, rgba(255, 248, 232, 0.044) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 248, 232, 0.044) 1px, transparent 1px);
     background-size: 22px 22px;
     -webkit-mask-image: radial-gradient(
       circle max(300px, 42vmin) at var(--spot-x, 50vw) var(--spot-y, 50vh),
-      #fff 0%,
-      rgba(255, 255, 255, 0.5) 58%,
+      #FFF8E8 0%,
+      rgba(255, 248, 232, 0.5) 58%,
       transparent 100%
     );
     mask-image: radial-gradient(
       circle max(300px, 42vmin) at var(--spot-x, 50vw) var(--spot-y, 50vh),
-      #fff 0%,
-      rgba(255, 255, 255, 0.5) 58%,
+      #FFF8E8 0%,
+      rgba(255, 248, 232, 0.5) 58%,
       transparent 100%
     );
     -webkit-mask-repeat: no-repeat;
@@ -273,7 +273,7 @@
     align-items: center;
     justify-content: center;
     padding: 0 clamp(20px, 4vw, 56px);
-    padding-bottom: clamp(36px, 6vh, 72px);
+    padding-bottom: clamp(24px, 4.5vh, 56px);
     /* First view: hero fills space between header + fixed footer */
     min-height: calc(100dvh - var(--header-stack) - var(--footer-bar));
     min-height: calc(100svh - var(--header-stack) - var(--footer-bar));
@@ -288,7 +288,7 @@
     display: inline-flex;
     align-items: center;
     gap: 14px;
-    margin: 0 0 clamp(14px, 2.4vh, 32px);
+    margin: clamp(-20px, -2.2vh, -10px) 0 clamp(8px, 1.3vh, 18px);
     white-space: nowrap;
   }
   .eyebrow::before,
@@ -357,11 +357,11 @@
     will-change: transform;
   }
   .headline .ph .word:hover {
-    color: #b8b6b0;
-    border-color: rgba(255, 255, 255, 0.5);
-    background-color: rgba(255, 255, 255, 0.07);
+    color: #ffffff;
+    border-color: rgba(255, 248, 232, 0.5);
+    background-color: rgba(255, 248, 232, 0.07);
     box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.14) inset,
+      0 0 0 1px rgba(255, 248, 232, 0.14) inset,
       0 8px 28px rgba(0, 0, 0, 0.28);
   }
   .headline .ph .word.is-floating {
@@ -372,11 +372,11 @@
   }
   .headline .ph .word.is-dragging {
     cursor: grabbing;
-    color: #b8b6b0;
-    border-color: rgba(255, 255, 255, 0.68);
-    background-color: rgba(255, 255, 255, 0.11);
+    color: #e5dcc6;
+    border-color: rgba(255, 248, 232, 0.68);
+    background-color: rgba(255, 248, 232, 0.11);
     box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.18) inset,
+      0 0 0 1px rgba(255, 248, 232, 0.18) inset,
       0 14px 40px rgba(0, 0, 0, 0.5);
     z-index: 10;
     transition: none; /* drag follows pointer instantly */
@@ -403,7 +403,7 @@
     color: var(--ink-soft);
     text-align: center;
     max-width: 46ch;
-    margin: clamp(14px, 2.2vh, 26px) 0 clamp(20px, 3.4vh, 38px);
+    margin: clamp(8px, 1.2vh, 16px) 0 clamp(10px, 1.6vh, 22px);
     text-wrap: pretty;
   }
   p.sub .sub-line {
@@ -417,7 +417,7 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    margin-top: clamp(44px, 6vh, 72px);
+    margin-top: clamp(26px, 3.8vh, 48px);
   }
   .field {
     display: flex;
@@ -433,7 +433,7 @@
     transition: border-color 200ms ease, background 200ms ease;
   }
   .field:focus-within {
-    border-color: rgba(246, 243, 236, 0.5);
+    border-color: rgba(255, 248, 232, 0.5);
     background: var(--field-hi);
   }
   .field input {
@@ -469,11 +469,11 @@
     align-items: center;
     gap: 10px;
     white-space: nowrap;
-    color: #ffffff;
+    color: #FFF8E8;
     background: linear-gradient(180deg, #1e1e1e 0%, #141414 45%, #0e0e0e 100%);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 248, 232, 0.14);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.12) inset,
+      0 1px 0 rgba(255, 248, 232, 0.12) inset,
       0 -1px 0 rgba(0, 0, 0, 0.55) inset,
       0 4px 6px rgba(0, 0, 0, 0.4),
       0 2px 0 rgba(0, 0, 0, 0.25),
@@ -486,12 +486,12 @@
       border-color 200ms ease;
   }
   .field button:hover {
-    color: #ffffff;
+    color: #FFF8E8;
     background: linear-gradient(180deg, #262626 0%, #1a1a1a 45%, #121212 100%);
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 248, 232, 0.2);
     transform: translateY(-2px);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.16) inset,
+      0 1px 0 rgba(255, 248, 232, 0.16) inset,
       0 -1px 0 rgba(0, 0, 0, 0.45) inset,
       0 5px 0 rgba(0, 0, 0, 0.22),
       0 6px 10px rgba(0, 0, 0, 0.45),
@@ -502,28 +502,28 @@
     background: linear-gradient(180deg, #141414 0%, #101010 45%, #0a0a0a 100%);
     box-shadow:
       0 2px 6px rgba(0, 0, 0, 0.65) inset,
-      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 1px 0 rgba(255, 248, 232, 0.06) inset,
       0 2px 4px rgba(0, 0, 0, 0.35);
   }
   .field button:disabled {
     opacity: 0.7;
     cursor: progress;
     transform: none;
-    border-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 248, 232, 0.08);
     background: linear-gradient(180deg, #181818 0%, #121212 100%);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 1px 0 rgba(255, 248, 232, 0.06) inset,
       0 2px 4px rgba(0, 0, 0, 0.3);
   }
   form.signup .field button#submit span.label {
-    color: #ffffff;
-    -webkit-text-fill-color: #ffffff;
+    color: #FFF8E8;
+    -webkit-text-fill-color: #FFF8E8;
   }
   form.signup .field button#submit:hover span.label,
   form.signup .field button#submit:active span.label,
   form.signup .field button#submit:disabled span.label {
-    color: #ffffff;
-    -webkit-text-fill-color: #ffffff;
+    color: #FFF8E8;
+    -webkit-text-fill-color: #FFF8E8;
   }
   .field button .arrow { transition: transform 250ms ease; }
   .field button:hover .arrow { transform: translateX(3px); }
@@ -617,15 +617,15 @@
      Responsive — tighten on small screens / short viewports.
      ────────────────────────────────────────────────────────────── */
   @media (max-height: 820px) {
-    .eyebrow { margin-bottom: 14px; gap: 10px; }
+    .eyebrow { margin-bottom: 10px; gap: 10px; }
     .eyebrow::before, .eyebrow::after { width: 20px; }
-    p.sub { margin: 12px 0 20px; }
+    p.sub { margin: 8px 0 14px; }
     .field input { padding: 12px 4px; }
     .field button { padding: 12px 18px; }
   }
   @media (max-height: 640px) {
     .eyebrow { display: none; }
-    p.sub { margin: 10px 0 16px; font-size: 13px; }
+    p.sub { margin: 6px 0 12px; font-size: 13px; }
     .status { font-size: 10px; }
     h1.headline { max-width: 40ch; }
   }
