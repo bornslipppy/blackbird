@@ -420,6 +420,7 @@
     margin-top: clamp(26px, 3.8vh, 48px);
   }
   .field {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -432,11 +433,44 @@
     -webkit-backdrop-filter: blur(14px) saturate(1.1);
     transition: border-color 200ms ease, background 200ms ease;
   }
+  /* Soft spotlight-matched rim: radial follows global cursor (same vars as .spotlight-glow) */
+  .field::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.38s ease;
+    background: radial-gradient(
+      circle max(260px, 36vmin) at var(--spot-x, 50vw) var(--spot-y, 50vh),
+      rgba(255, 248, 232, 0.52) 0%,
+      rgba(255, 248, 232, 0.26) 38%,
+      rgba(255, 248, 232, 0.09) 56%,
+      transparent 72%
+    );
+    background-attachment: fixed;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+  .field:hover::before {
+    opacity: 1;
+  }
   .field:focus-within {
     border-color: rgba(255, 248, 232, 0.5);
     background: var(--field-hi);
   }
   .field input {
+    position: relative;
+    z-index: 1;
     flex: 1;
     min-width: 0;
     border: 0;
@@ -469,6 +503,10 @@
     align-items: center;
     gap: 10px;
     white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    z-index: 1;
     color: #FFF8E8;
     background: linear-gradient(180deg, #1e1e1e 0%, #141414 45%, #0e0e0e 100%);
     border: 1px solid rgba(255, 248, 232, 0.14);
@@ -479,31 +517,106 @@
       0 2px 0 rgba(0, 0, 0, 0.25),
       0 8px 16px rgba(0, 0, 0, 0.35);
     transition:
-      transform 200ms ease,
-      background 200ms ease,
-      color 200ms ease,
-      box-shadow 200ms ease,
-      border-color 200ms ease;
+      transform 220ms cubic-bezier(0.34, 1.45, 0.64, 1),
+      color 0.3s ease,
+      box-shadow 220ms ease,
+      border-color 220ms ease;
+  }
+  /* Expanding white circle — hidden until hover; grows from bottom-center to fill */
+  .field button::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: 280%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #ffffff;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    transition:
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.2s ease,
+      background 0.2s ease;
+    z-index: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+  .field button:hover::before {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  .field button:active::before {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    background: #e6e6e6;
+    box-shadow:
+      0 8px 22px rgba(0, 0, 0, 0.14) inset,
+      0 2px 0 rgba(255, 255, 255, 0.4) inset;
+  }
+  /*
+   * Inset shadows on the button sit *under* ::before in paint order, so they
+   * never show on the white fill. This transparent ::after sits above the
+   * white layer and carries rim + black inner shadow (visible on hover).
+   */
+  .field button::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.06s;
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.92),
+      inset 0 5px 14px rgba(255, 255, 255, 0.4),
+      inset 0 14px 36px rgba(0, 0, 0, 0.4),
+      inset 0 5px 16px rgba(0, 0, 0, 0.34),
+      inset 0 0 26px rgba(0, 0, 0, 0.28);
+  }
+  .field button:hover::after,
+  .field button:active::after {
+    opacity: 1;
+  }
+  .field button:active::after {
+    transition-duration: 0.12s;
+    transition-delay: 0s;
+    box-shadow:
+      inset 0 16px 34px rgba(0, 0, 0, 0.36),
+      inset 0 6px 18px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+  .field button > * {
+    position: relative;
+    z-index: 2;
   }
   .field button:hover {
-    color: #FFF8E8;
-    background: linear-gradient(180deg, #262626 0%, #1a1a1a 45%, #121212 100%);
-    border-color: rgba(255, 248, 232, 0.2);
-    transform: translateY(-2px);
+    color: #000000;
+    border-color: rgba(0, 0, 0, 0.16);
+    /* Outer lift only — hover insets live on ::after above the white fill */
     box-shadow:
-      0 1px 0 rgba(255, 248, 232, 0.16) inset,
-      0 -1px 0 rgba(0, 0, 0, 0.45) inset,
-      0 5px 0 rgba(0, 0, 0, 0.22),
-      0 6px 10px rgba(0, 0, 0, 0.45),
-      0 14px 24px rgba(0, 0, 0, 0.4);
+      0 9px 0 rgba(0, 0, 0, 0.11),
+      0 11px 14px rgba(0, 0, 0, 0.16),
+      0 24px 44px rgba(0, 0, 0, 0.22);
+    transition:
+      transform 220ms cubic-bezier(0.34, 1.45, 0.64, 1),
+      color 0.32s ease 0.14s,
+      box-shadow 220ms ease,
+      border-color 220ms ease;
   }
   .field button:active {
-    transform: translateY(1px);
-    background: linear-gradient(180deg, #141414 0%, #101010 45%, #0a0a0a 100%);
+    transform: scale(0.99);
+    color: #000000;
+    border-color: rgba(0, 0, 0, 0.2);
+    /* Pressed-in: heavy inner shadow, shallow base */
     box-shadow:
-      0 2px 6px rgba(0, 0, 0, 0.65) inset,
-      0 1px 0 rgba(255, 248, 232, 0.06) inset,
-      0 2px 4px rgba(0, 0, 0, 0.35);
+      0 10px 26px rgba(0, 0, 0, 0.22) inset,
+      0 4px 14px rgba(0, 0, 0, 0.12) inset,
+      0 2px 0 rgba(255, 255, 255, 0.42) inset,
+      0 -2px 6px rgba(0, 0, 0, 0.1) inset,
+      0 4px 0 rgba(0, 0, 0, 0.12),
+      0 8px 16px rgba(0, 0, 0, 0.14);
   }
   .field button:disabled {
     opacity: 0.7;
@@ -515,18 +628,42 @@
       0 1px 0 rgba(255, 248, 232, 0.06) inset,
       0 2px 4px rgba(0, 0, 0, 0.3);
   }
+  .field button:disabled::before {
+    display: none;
+  }
+  .field button:disabled::after {
+    display: none;
+  }
   form.signup .field button#submit span.label {
     color: #FFF8E8;
     -webkit-text-fill-color: #FFF8E8;
+    transition: color 0.3s ease, -webkit-text-fill-color 0.3s ease;
+    transform: translateY(1px);
   }
   form.signup .field button#submit:hover span.label,
-  form.signup .field button#submit:active span.label,
+  form.signup .field button#submit:active span.label {
+    color: #000000;
+    -webkit-text-fill-color: #000000;
+    transition-delay: 0.14s;
+  }
   form.signup .field button#submit:disabled span.label {
     color: #FFF8E8;
     -webkit-text-fill-color: #FFF8E8;
+    transition-delay: 0s;
   }
-  .field button .arrow { transition: transform 250ms ease; }
-  .field button:hover .arrow { transform: translateX(3px); }
+  .field button .arrow {
+    color: #FFF8E8;
+    transition: transform 250ms ease, color 0.1s ease;
+  }
+  .field button:hover .arrow,
+  .field button:active .arrow {
+    transform: translateX(3px);
+    color: #000000;
+  }
+  .field button:disabled .arrow {
+    color: #FFF8E8;
+    transform: none;
+  }
 
   .status {
     font-family: var(--font);
@@ -647,8 +784,25 @@
   @media (prefers-reduced-motion: reduce) {
     .top .meta .dot { animation: none; box-shadow: none; }
     .brand .mark { animation: none; }
+    .field::before {
+      transition: none;
+    }
     .field button { transition: none; }
+    .field button::before {
+      transition: none;
+    }
+    .field button::after {
+      transition: none;
+    }
     .field button:hover { transform: none; }
+    .field button:hover::before {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    .field button:hover::after,
+    .field button:active::after {
+      opacity: 1;
+    }
     .field button:active { transform: none; }
     .spotlight-glow { display: none; }
   }
