@@ -4,6 +4,18 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Blackbird — Early access</title>
+<meta name="description" content="Blackbird puts all your interactive builds onto one infinite canvas. See the big picture, interact with the real UI, and leave spatial comments—like Figma." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Blackbird — Early access" />
+<meta property="og:description" content="Blackbird puts all your interactive builds onto one infinite canvas. See the big picture, interact with the real UI, and leave spatial comments—like Figma." />
+<meta property="og:image" content="/og-preview.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Blackbird canvas with embedded web designs on an infinite grid" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Blackbird — Early access" />
+<meta name="twitter:description" content="Blackbird puts all your interactive builds onto one infinite canvas. See the big picture, interact with the real UI, and leave spatial comments—like Figma." />
+<meta name="twitter:image" content="/og-preview.png" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <style>
   @font-face {
@@ -62,6 +74,11 @@
   }
 
   * { box-sizing: border-box; }
+  img, video, canvas {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
   html {
     color-scheme: dark;
   }
@@ -72,6 +89,8 @@
     color: var(--ink);
     font-family: var(--font);
     font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
@@ -232,6 +251,11 @@
     gap: 12px;
     color: var(--ink);
     text-decoration: none;
+    min-height: 48px;
+    min-width: 48px;
+    padding: 4px 2px;
+    margin: -4px -2px;
+    -webkit-tap-highlight-color: transparent;
   }
   .brand .mark {
     width: 28px; height: auto; display: block;
@@ -245,6 +269,11 @@
   }
   .brand:hover .mark {
     animation-duration: 2.8s;
+  }
+  .brand:focus-visible {
+    outline: 2px solid rgba(255, 248, 232, 0.38);
+    outline-offset: 4px;
+    border-radius: 6px;
   }
   .brand .wordmark {
     font-family: var(--font);
@@ -295,7 +324,7 @@
 
   .eyebrow {
     font-family: var(--font);
-    font-size: 11px;
+    font-size: clamp(12px, 2.6vw, 13px);
     letter-spacing: 0.04em;
     color: var(--ink-soft);
     display: inline-flex;
@@ -414,7 +443,7 @@
   p.sub {
     font-family: var(--font);
     font-weight: 300;
-    font-size: clamp(14px, 1.4vw, 18px);
+    font-size: clamp(16px, 1.45vw, 18px);
     line-height: 1.5;
     color: var(--ink-soft);
     text-align: center;
@@ -428,13 +457,15 @@
   main.hero p.sub {
     transition: color 220ms ease;
   }
-  main.hero p.sub:hover {
+  main.hero p.sub:hover,
+  main.hero p.sub:active {
     color: var(--sub-hover);
   }
   .scroll-pitch p.sub.sub-pitch .sub-line {
     transition: color 220ms ease;
   }
-  .scroll-pitch p.sub.sub-pitch .sub-line:hover {
+  .scroll-pitch p.sub.sub-pitch .sub-line:hover,
+  .scroll-pitch p.sub.sub-pitch .sub-line:active {
     color: var(--sub-hover);
   }
 
@@ -444,14 +475,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     margin-top: clamp(26px, 3.8vh, 48px);
   }
   .field {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 6px;
+    flex-wrap: nowrap;
+    gap: 8px;
     width: 100%;
     padding: 6px 6px 6px 22px;
     border-radius: 999px;
@@ -537,6 +569,8 @@
     font-weight: 500;
     font-size: 14px;
     letter-spacing: 0.01em;
+    min-height: 48px;
+    min-width: 48px;
     padding: 14px 22px;
     border-radius: 999px;
     display: inline-flex;
@@ -812,8 +846,22 @@
     color: var(--ink-faint);
     text-decoration: none;
     transition: color 200ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 10px;
+    margin: 0 -10px;
+    -webkit-tap-highlight-color: transparent;
   }
-  footer.bot a:hover { color: var(--ink-soft); }
+  footer.bot a:hover,
+  footer.bot a:active { color: var(--ink-soft); }
+  footer.bot a:focus-visible {
+    outline: 2px solid rgba(255, 248, 232, 0.35);
+    outline-offset: 3px;
+    border-radius: 4px;
+    color: var(--ink-soft);
+  }
 
   /* ──────────────────────────────────────────────────────────────
      Responsive — tighten on small screens / short viewports.
@@ -827,15 +875,26 @@
   }
   @media (max-height: 640px) {
     .eyebrow { display: none; }
-    p.sub { margin: 6px 0 12px; font-size: 13px; }
+    p.sub { margin: 6px 0 12px; font-size: 16px; }
     .status { font-size: 10px; }
     h1.headline { max-width: 40ch; }
   }
   @media (max-width: 640px) {
     footer.bot .row.center { display: none; }
     h1.headline { font-size: clamp(40px, 11vw, 64px); }
-    .field { padding-left: 16px; }
-    .field button { padding: 12px 16px; font-size: 13px; }
+    .field {
+      padding: 10px 10px 10px 16px;
+      flex-direction: column;
+      align-items: stretch;
+      border-radius: 20px;
+    }
+    .field button {
+      width: 100%;
+      justify-content: center;
+      padding: 14px 18px;
+      font-size: 15px;
+      min-height: 48px;
+    }
     .field button .arrow { display: none; }
     .field input { padding: 12px 4px; }
   }
@@ -848,6 +907,13 @@
     }
     footer.bot { padding: 14px 18px; }
     footer.bot .right { display: none; }
+  }
+
+  /* Coarse pointers: slightly larger hit area on draggable words (padding only — no fixed min box) */
+  @media (pointer: coarse) {
+    .headline .ph .word {
+      padding: 0.08em 0.14em;
+    }
   }
 
   /* Reduced-motion */
@@ -879,7 +945,8 @@
     .field button:active { transform: none; }
     .spotlight-glow { display: none; }
     .ambient-down-arrow svg { animation: none; }
-    main.hero p.sub { transition: none; }
+    main.hero p.sub:hover,
+    main.hero p.sub:active { transition: none; }
     .scroll-pitch p.sub.sub-pitch .sub-line { transition: none; }
   }
 </style>
