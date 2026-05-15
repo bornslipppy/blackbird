@@ -666,6 +666,7 @@
   }
 
   .status {
+    margin: 0;
     font-family: var(--font);
     font-size: 11px;
     letter-spacing: 0.02em;
@@ -857,7 +858,16 @@
       <span class="sub-line">Drop in any prototype to get a bird's-eye view of multiple interactive artifacts on a Figma-like canvas, and collaborate directly on the live UI</span>
     </p>
 
-    <form class="signup" novalidate>
+    <form class="signup" id="signup-form" novalidate>
+      <input
+        id="website"
+        name="website"
+        type="text"
+        tabindex="-1"
+        autocomplete="off"
+        style="display: none;"
+        aria-hidden="true"
+      />
       <label class="field" for="email">
         <input
           id="email"
@@ -877,7 +887,7 @@
         </button>
       </label>
 
-      <div class="status" id="status" aria-live="polite">We'll only email about early access</div>
+      <p class="status" id="form-message" aria-live="polite">We'll only email about early access</p>
     </form>
 
     <div class="success-card" role="status" aria-live="polite">
@@ -886,8 +896,8 @@
           <path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
-      <div class="t1">[Confirmation headline]</div>
-      <div class="t2">[Confirmation subline — you're on the list]</div>
+      <div class="t1">You’re in.</div>
+      <div class="t2">We’ll email you about early access.</div>
     </div>
   </main>
 
@@ -934,57 +944,77 @@
   })();
 
   // ──────────────────────────────────────────────
-  // Real form behavior — validation, fake submit,
-  // error + success states. Replace the fetch with
-  // your provider (Loops, ConvertKit, Resend, etc.)
+  // Waitlist signup → Vercel Function /api/subscribe → Google Sheet
   // ──────────────────────────────────────────────
-  const form  = document.querySelector('form.signup');
-  const input = document.getElementById('email');
-  const btn   = document.getElementById('submit');
-  const stat  = document.getElementById('status');
+  const form = document.getElementById('signup-form');
+  const emailInput = document.getElementById('email');
+  const websiteInput = document.getElementById('website');
+  const message = document.getElementById('form-message');
+  const btn = document.getElementById('submit');
 
   const RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   function setStatus(msg, kind) {
-    stat.textContent = msg;
-    stat.classList.remove('error', 'success');
-    if (kind) stat.classList.add(kind);
+    message.textContent = msg;
+    message.classList.remove('error', 'success');
+    if (kind) message.classList.add(kind);
   }
 
-  input.addEventListener('input', () => {
-    if (stat.classList.contains('error')) {
+  emailInput.addEventListener('input', () => {
+    if (message.classList.contains('error')) {
       setStatus("We'll only email about early access", null);
     }
   });
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const val = input.value.trim();
+  form.addEventListener('submit', async function (event) {
+    event.preventDefault();
 
+    const val = emailInput.value.trim();
     if (!val) {
-      setStatus('[Error — please enter your email]', 'error');
-      input.focus();
+      setStatus('Please enter your email.', 'error');
+      emailInput.focus();
       return;
     }
     if (!RE.test(val)) {
-      setStatus('[Error — that doesn\u2019t look like a valid email]', 'error');
-      input.focus();
+      setStatus('That doesn’t look like a valid email.', 'error');
+      emailInput.focus();
       return;
     }
 
     btn.disabled = true;
     const labelEl = btn.querySelector('.label');
     const labelWas = labelEl.textContent;
-    labelEl.textContent = '[Sending…]';
-    setStatus('[Sending — securing your spot]', null);
+    labelEl.textContent = 'Sending…';
+    setStatus('Submitting…', null);
 
-    // Simulate a network roundtrip — swap for your real endpoint
-    await new Promise(r => setTimeout(r, 900));
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: emailInput.value,
+          website: websiteInput.value,
+          source: 'landing_page',
+        }),
+      });
 
-    btn.disabled = false;
-    labelEl.textContent = labelWas;
+      const data = await response.json().catch(() => ({}));
 
-    document.body.classList.add('is-success');
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || 'Failed');
+      }
+
+      emailInput.value = '';
+      setStatus('You’re in.', 'success');
+      document.body.classList.add('is-success');
+    } catch (err) {
+      setStatus('Something went wrong. Try again.', 'error');
+    } finally {
+      btn.disabled = false;
+      labelEl.textContent = labelWas;
+    }
   });
 
   // ──────────────────────────────────────────────

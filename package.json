@@ -1,0 +1,13 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "googleapis": "latest"
+  },
+  "devDependencies": {
+    "vercel": "^50.41.0"
+  }
+}
