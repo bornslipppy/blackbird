@@ -60,6 +60,9 @@
   }
 
   * { box-sizing: border-box; }
+  html {
+    color-scheme: dark;
+  }
   html, body { margin: 0; padding: 0; }
   html, body { height: auto; min-height: 100%; }
   body {
@@ -464,10 +467,6 @@
   .field:hover::before {
     opacity: 1;
   }
-  .field:focus-within {
-    border-color: rgba(255, 248, 232, 0.5);
-    background: var(--field-hi);
-  }
   .field input {
     position: relative;
     z-index: 1;
@@ -482,6 +481,22 @@
     font-weight: 400;
     padding: 14px 4px;
     letter-spacing: 0.005em;
+  }
+  /* Keyboard focus only — avoids pill “lift” while typing / using autocomplete */
+  .field input:focus-visible {
+    outline: 2px solid rgba(255, 248, 232, 0.38);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* Override Chrome/Safari autofill tint so it matches our field */
+  .field input:-webkit-autofill,
+  .field input:-webkit-autofill:hover,
+  .field input:-webkit-autofill:focus,
+  .field input:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--ink) !important;
+    caret-color: var(--ink);
+    box-shadow: 0 0 0 1000px var(--field) inset !important;
+    transition: box-shadow 99999s ease-out 0s;
   }
   .field input::placeholder {
     color: var(--ink-faint);
