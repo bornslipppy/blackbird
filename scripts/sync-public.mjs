@@ -17,10 +17,19 @@ for (const name of FILES) {
   fs.copyFileSync(src, path.join(pub, name));
 }
 
+// Files too large for Vercel's 100 MB limit — excluded from public output
+const EXCLUDE_FROM_ASSETS = new Set(["bbrid.mp4"]);
+
 for (const name of DIRS) {
   const src = path.join(root, name);
   if (!fs.existsSync(src)) continue;
-  fs.cpSync(src, path.join(pub, name), { recursive: true });
+  fs.cpSync(src, path.join(pub, name), {
+    recursive: true,
+    filter: (srcPath) => {
+      const basename = path.basename(srcPath);
+      return !EXCLUDE_FROM_ASSETS.has(basename);
+    },
+  });
 }
 
 console.log("sync-public: copied static assets to public/");
