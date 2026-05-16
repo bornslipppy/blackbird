@@ -1,0 +1,3 @@
+# Original high-res source video — too large for Vercel (>100 MB).
+# Only the compressed bbrid-web.mp4 is deployed.
+assets/bbrid.mp4
