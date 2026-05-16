@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "build": "node scripts/inject-og-origin.mjs",
+    "build": "node scripts/inject-og-origin.mjs && node scripts/sync-public.mjs",
     "start": "vercel dev"
   },
   "dependencies": {

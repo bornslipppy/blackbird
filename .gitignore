@@ -7,3 +7,6 @@
 .env
 
 node_modules/
+
+# Vercel static output (built from repo root assets)
+/public
