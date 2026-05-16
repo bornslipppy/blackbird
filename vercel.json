@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "node scripts/inject-og-origin.mjs && node scripts/sync-public.mjs",
   "outputDirectory": "public",
   "headers": [
     {
